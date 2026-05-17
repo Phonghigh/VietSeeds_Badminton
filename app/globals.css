@@ -216,4 +216,26 @@
   /* ── H-scroll ── */
   .h-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px; }
   .h-scroll::-webkit-scrollbar { display: none; }
+
+  /* ── Bottom nav (mobile shell) ── */
+  .bottom-nav {
+    background: linear-gradient(180deg, rgba(17,24,39,0.85) 0%, rgba(11,18,32,0.95) 100%);
+    backdrop-filter: blur(12px);
+  }
+  .bottom-nav::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: calc(0.6 * var(--px));
+    pointer-events: none;
+  }
+  /* State driven by the existing aria-current="page" attribute — no inline style needed */
+  .nav-link { color: var(--text-3); }
+  .nav-link[aria-current="page"] { color: var(--accent); }
+  .nav-pip {
+    background: var(--accent);
+    box-shadow: 0 0 calc(12px * var(--px)) var(--accent);
+  }
 }

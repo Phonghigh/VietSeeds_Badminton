@@ -29,3 +29,5 @@ yarn-error.log*
 
 # Turbopack
 .turbo/
+.claude/
+claude
