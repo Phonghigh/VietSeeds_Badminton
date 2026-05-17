@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { ThemeInitializer } from "@/components/theme-initializer";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "VietSeeds Smashers",
@@ -16,6 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ThemeInitializer />
           {children}
         </Providers>
+        <Analytics />
       </body>
     </html>
   );
