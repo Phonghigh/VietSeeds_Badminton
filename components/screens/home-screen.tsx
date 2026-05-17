@@ -56,20 +56,19 @@ function HomeLayoutA() {
       transition={pageTransition}
     >
       {/* Greeting */}
-      <div className="flex items-start justify-between" style={{ paddingTop: 4 }}>
+      <div className="flex items-center justify-between" style={{ paddingTop: 4 }}>
         <div>
           <div className="pixel-xs" style={{ color: "var(--accent)" }}>▸ HELLO PLAYER</div>
-          <div className="pixel-lg mt-1.5" style={{ color: "var(--ink-0, #F3F4F6)" }}>
+          <div className="pixel-lg mt-1.5" style={{ color: "var(--text-0)" }}>
             Hi, {ME.nick} <span className="animate-flicker">★</span>
           </div>
-          <div className="text-[11px] text-ink-3 mt-0.5">Ready to smash today?</div>
         </div>
         <button onClick={() => router.push("/profile")}>
           <PixelAvatar seed={ME.nick} size="md" ring level={ME.level} />
         </button>
       </div>
 
-      {/* Live banner */}
+      {/* Live banner — only shown when a session is active */}
       {live && (
         <PixelCard variant="elev" accent style={{ overflow: "hidden", position: "relative" }}>
           <div
@@ -79,7 +78,7 @@ function HomeLayoutA() {
           <div style={{ padding: 14 }}>
             <div className="flex items-center gap-2">
               <span className="live-dot" />
-              <span className="pixel-xs" style={{ color: "var(--danger)" }}>● LIVE NOW</span>
+              <span className="pixel-xs" style={{ color: "var(--danger)" }}>LIVE NOW</span>
               <PixelBadge className="ml-auto">{live.matchesPlayed ?? 0}/12 matches</PixelBadge>
             </div>
             <div className="pixel-md mt-2" style={{ color: "var(--text-0)" }}>{live.title}</div>
@@ -98,7 +97,7 @@ function HomeLayoutA() {
         </PixelCard>
       )}
 
-      {/* Upcoming hero */}
+      {/* Upcoming session — primary action */}
       <PixelCard variant="elev" accent glow style={{ overflow: "hidden", position: "relative" }}>
         <div
           className="absolute top-0 right-0 bottom-0 pointer-events-none"
@@ -144,116 +143,10 @@ function HomeLayoutA() {
         </div>
       </PixelCard>
 
-      {/* Quick stats */}
+      {/* Personal stats — streak and rank only */}
       <div className="flex gap-2.5 items-stretch">
         <StatTile icon={<FireIcon size={14} />} label="STREAK" value={`${ME.streak} 🔥`} color="var(--orange)" />
-        <StatTile icon={<BoltIcon size={14} />} label="XP TODAY" value="+120" color="var(--accent)" />
         <StatTile icon={<TrophyIcon size={14} color="var(--yellow)" />} label="RANK" value="#4" color="var(--yellow)" />
-      </div>
-
-      {/* Daily quests */}
-      <PixelCard variant="default" style={{ padding: 16 }}>
-        <div className="flex justify-between items-center">
-          <SectionTitle>Daily Quests</SectionTitle>
-          <PixelBadge variant="yellow">2/3</PixelBadge>
-        </div>
-        <div className="flex flex-col gap-2.5 mt-1">
-          {QUESTS.map(q => (
-            <div key={q.id} className="flex items-start gap-2.5">
-              <div
-                className="flex-shrink-0 grid place-items-center"
-                style={{
-                  width: 22, height: 22,
-                  background: q.done ? "var(--accent)" : "var(--bg-3)",
-                  clipPath: "polygon(0 3px,3px 3px,3px 0,calc(100% - 3px) 0,calc(100% - 3px) 3px,100% 3px,100% calc(100% - 3px),calc(100% - 3px) calc(100% - 3px),calc(100% - 3px) 100%,3px 100%,3px calc(100% - 3px),0 calc(100% - 3px))",
-                  boxShadow: q.done ? "0 0 12px var(--accent-glow)" : "none",
-                }}
-              >
-                {q.done && <CheckIcon size={14} color="var(--accent-ink)" />}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div
-                  className="text-[12px]"
-                  style={{ color: q.done ? "var(--text-3)" : "var(--text-1)", textDecoration: q.done ? "line-through" : "none" }}
-                >
-                  {q.label}
-                </div>
-                {q.progress != null && q.total != null && (
-                  <div className="mt-1">
-                    <XPBar value={q.progress} max={q.total} color="yellow" height={6} />
-                  </div>
-                )}
-              </div>
-              <PixelBadge variant="accent" icon={<BoltIcon size={10} />}>+{q.xp}</PixelBadge>
-            </div>
-          ))}
-        </div>
-      </PixelCard>
-
-      {/* Activity feed */}
-      <div>
-        <SectionTitle more="VIEW ALL">Activity Feed</SectionTitle>
-        <PixelCard variant="default" style={{ padding: 0, overflow: "hidden" }}>
-          {ACTIVITY.map((a, i) => {
-            const who    = findPlayer(a.who);
-            const target = a.target ? findPlayer(a.target) : null;
-            return (
-              <div
-                key={a.id}
-                className="flex items-center gap-2.5"
-                style={{
-                  padding: "12px 14px",
-                  borderTop: i === 0 ? "none" : "1px dashed var(--border-soft)",
-                }}
-              >
-                <PixelAvatar seed={who.nick} size="sm" />
-                <div className="flex-1 min-w-0">
-                  <div className="text-[12px] text-ink-1 leading-snug">
-                    <b className="text-ink-0">{who.nick}</b> {a.text}
-                    {target && <b style={{ color: "var(--accent)" }}> {target.nick}</b>}
-                    {a.level && <b className="text-retro-yellow"> Lv.{a.level}</b>}
-                  </div>
-                  <div className="pixel-xs text-ink-3 mt-0.5">{a.time.toUpperCase()}</div>
-                </div>
-                <div className="flex items-center gap-1">
-                  {ACTIVITY_ICON_MAP[a.type]}
-                  {a.xp && <span className="pixel-xs" style={{ color: "var(--accent)" }}>+{a.xp}</span>}
-                </div>
-              </div>
-            );
-          })}
-        </PixelCard>
-      </div>
-
-      {/* Leaderboard preview */}
-      <div>
-        <SectionTitle more="FULL BOARD">Weekly Leaderboard</SectionTitle>
-        <PixelCard variant="default" style={{ padding: 14 }}>
-          {[PLAYERS[2], PLAYERS[8], PLAYERS[0], PLAYERS[6]].map((p, i) => (
-            <div
-              key={p.id}
-              className="flex items-center gap-2.5"
-              style={{ padding: "8px 0", borderBottom: i < 3 ? "1px dashed var(--border-soft)" : "none" }}
-            >
-              <div
-                className="pixel-md text-center"
-                style={{
-                  width: 28,
-                  color: i === 0 ? "var(--yellow)" : i === 1 ? "var(--text-2)" : i === 2 ? "var(--orange)" : "var(--text-3)",
-                  textShadow: i === 0 ? "0 0 10px var(--yellow-glow)" : "none",
-                }}
-              >
-                {i + 1}
-              </div>
-              <PixelAvatar seed={p.nick} size="sm" />
-              <div className="flex-1">
-                <div className="text-[12px] text-ink-1">{p.name}</div>
-                <div className="pixel-xs text-ink-3">LV.{p.level}</div>
-              </div>
-              <div className="pixel-sm" style={{ color: "var(--accent)" }}>{p.wins}W</div>
-            </div>
-          ))}
-        </PixelCard>
       </div>
     </motion.div>
   );
