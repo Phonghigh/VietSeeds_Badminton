@@ -1,0 +1,367 @@
+/* ============================================================
+   WEB DASHBOARD — VietSeeds Smashers
+   Desktop 3-column shell + dense data layout
+   Inherits all tokens from globals.css
+   ============================================================ */
+
+:root {
+  --sidebar-w: 240px;
+  --rail-w: 340px;
+  --topbar-h: 60px;
+  --pad: 20px;
+}
+
+/* Allow scrolling on web routes */
+.web-root,
+.web-root body {
+  overflow: auto;
+}
+
+/* ── Page background ── */
+.web-bg {
+  background:
+    radial-gradient(circle at 0% 0%, var(--accent-glow-soft) 0%, transparent 40%),
+    radial-gradient(circle at 100% 100%, var(--accent-glow-soft) 0%, transparent 45%),
+    var(--bg-0);
+  min-height: 100vh;
+}
+
+/* ── 3-col layout grid ── */
+.web-app {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr var(--rail-w);
+  grid-template-rows: var(--topbar-h) 1fr;
+  grid-template-areas:
+    "topbar topbar topbar"
+    "sidebar main rail";
+  min-height: 100vh;
+}
+
+@media (max-width: 1400px) {
+  :root { --rail-w: 300px; --sidebar-w: 220px; }
+}
+@media (max-width: 1200px) {
+  .web-app {
+    grid-template-columns: var(--sidebar-w) 1fr;
+    grid-template-areas:
+      "topbar topbar"
+      "sidebar main";
+  }
+  .web-rail { display: none; }
+}
+@media (max-width: 900px) {
+  :root { --sidebar-w: 72px; }
+  .web-sidebar .nav-label,
+  .web-sidebar .community-card { display: none; }
+}
+
+/* ── Top bar ── */
+.web-topbar {
+  grid-area: topbar;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 var(--pad);
+  background: var(--bg-1);
+  border-bottom: 2px solid var(--border-soft);
+  position: sticky; top: 0; z-index: 50;
+  backdrop-filter: blur(12px);
+}
+
+.web-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: calc(var(--sidebar-w) - 20px);
+}
+.web-brand-mark {
+  width: 36px; height: 36px;
+  display: grid; place-items: center;
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: 0 0 calc(20px * var(--px)) var(--accent-glow);
+  clip-path: polygon(0 4px, 4px 4px, 4px 0, calc(100% - 4px) 0, calc(100% - 4px) 4px, 100% 4px,
+    100% calc(100% - 4px), calc(100% - 4px) calc(100% - 4px), calc(100% - 4px) 100%,
+    4px 100%, 4px calc(100% - 4px), 0 calc(100% - 4px));
+}
+.web-brand-name {
+  font-family: var(--font-pixel);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: var(--text-0);
+  line-height: 1;
+}
+.web-brand-tag {
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  color: var(--accent);
+  margin-top: 4px;
+}
+
+.web-search {
+  flex: 1; max-width: 480px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px;
+  background: var(--bg-2);
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--text-2);
+  box-shadow: inset 0 0 0 2px var(--border-soft);
+  cursor: pointer;
+}
+.web-search:hover { box-shadow: inset 0 0 0 2px var(--border-mid); }
+.web-search kbd {
+  margin-left: auto;
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  padding: 2px 6px;
+  background: var(--bg-1);
+  color: var(--text-3);
+}
+
+.web-topbar-tools { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+.web-icon-btn {
+  width: 36px; height: 36px;
+  display: grid; place-items: center;
+  background: var(--bg-2);
+  color: var(--text-1);
+  position: relative;
+  cursor: pointer;
+  border: none;
+}
+.web-icon-btn:hover { background: var(--bg-3); color: var(--accent); }
+.web-icon-btn .dot {
+  position: absolute; top: 6px; right: 6px;
+  width: 8px; height: 8px;
+  background: var(--danger);
+  box-shadow: 0 0 6px var(--danger);
+}
+
+.web-user-pill {
+  display: flex; align-items: center; gap: 10px;
+  padding: 4px 12px 4px 4px;
+  background: var(--bg-2);
+  cursor: pointer;
+  border: none;
+}
+.web-user-pill:hover { background: var(--bg-3); }
+.web-user-pill .pp-label { font-family: var(--font-pixel); font-size: 9px; color: var(--text-0); }
+.web-user-pill .pp-sub   { font-family: var(--font-pixel); font-size: 7px; color: var(--accent); margin-top: 3px; }
+
+/* ── Sidebar ── */
+.web-sidebar {
+  grid-area: sidebar;
+  background: var(--bg-1);
+  border-right: 2px solid var(--border-soft);
+  padding: 18px 12px;
+  position: sticky; top: var(--topbar-h);
+  height: calc(100vh - var(--topbar-h));
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.web-sidebar::-webkit-scrollbar { width: 0; }
+.web-nav-section {
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  color: var(--text-3);
+  letter-spacing: 0.1em;
+  padding: 12px 14px 6px;
+}
+
+.web-side-link {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px;
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--text-2);
+  cursor: pointer;
+  position: relative;
+  background: transparent;
+  border: none;
+  border-radius: 2px;
+  transition: all 150ms ease-out;
+  width: 100%;
+  text-align: left;
+}
+.web-side-link:hover { background: var(--bg-2); color: var(--text-1); }
+.web-side-link.active {
+  background: var(--accent-glow-soft);
+  color: var(--accent);
+  box-shadow: inset 3px 0 0 var(--accent), 0 0 calc(20px * var(--px)) var(--accent-glow);
+}
+.web-side-link.active::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px; background: var(--accent);
+  box-shadow: 0 0 calc(8px * var(--px)) var(--accent);
+}
+.web-side-link .num {
+  margin-left: auto;
+  font-family: var(--font-pixel); font-size: 8px;
+  padding: 2px 6px; background: var(--bg-2); color: var(--text-3);
+}
+.web-side-link.active .num { background: var(--accent); color: var(--accent-ink); }
+
+.web-community-card {
+  margin-top: auto;
+  padding: 14px;
+  background: var(--bg-2);
+  position: relative;
+  overflow: hidden;
+}
+.web-community-card::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(circle at top right, var(--accent-glow-soft), transparent 60%);
+  pointer-events: none;
+}
+
+/* ── Main content ── */
+.web-main {
+  grid-area: main;
+  padding: var(--pad);
+  min-width: 0;
+  overflow-y: auto;
+}
+
+.web-main-head {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  margin-bottom: 18px;
+  flex-wrap: wrap; gap: 12px;
+}
+.web-main-head h1 {
+  font-family: var(--font-pixel);
+  font-size: 22px;
+  color: var(--text-0);
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+.web-crumbs {
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  color: var(--text-3);
+  margin-bottom: 8px;
+  letter-spacing: 0.1em;
+}
+.web-sub {
+  color: var(--text-2);
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+/* ── Right rail ── */
+.web-rail {
+  grid-area: rail;
+  border-left: 2px solid var(--border-soft);
+  background: var(--bg-1);
+  padding: var(--pad);
+  position: sticky; top: var(--topbar-h);
+  height: calc(100vh - var(--topbar-h));
+  overflow-y: auto;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.web-rail::-webkit-scrollbar { width: 0; }
+
+/* ── KPI tiles ── */
+.web-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.web-kpi-tile {
+  background: var(--bg-2);
+  padding: 14px 16px;
+  position: relative;
+  overflow: hidden;
+}
+.web-kpi-tile .label {
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  color: var(--text-3);
+  letter-spacing: 0.1em;
+}
+.web-kpi-tile .value {
+  font-family: var(--font-pixel);
+  font-size: 22px;
+  color: var(--text-0);
+  margin-top: 8px;
+  text-shadow: 0 0 12px currentColor;
+}
+.web-kpi-tile .delta {
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  margin-top: 6px;
+}
+.web-kpi-tile .icon-bg {
+  position: absolute; right: -8px; bottom: -8px;
+  opacity: 0.25; pointer-events: none;
+}
+
+/* ── Content grids ── */
+.web-cols-2 { display: grid; grid-template-columns: 1.5fr 1fr; gap: 16px; }
+.web-cols-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+@media (max-width: 1100px) { .web-cols-2, .web-cols-3 { grid-template-columns: 1fr; } }
+
+/* ── Tables ── */
+.web-tbl { width: 100%; border-collapse: separate; border-spacing: 0; }
+.web-tbl th {
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  color: var(--text-3);
+  text-align: left;
+  padding: 10px 12px;
+  background: var(--bg-1);
+  border-bottom: 2px solid var(--border-soft);
+}
+.web-tbl td {
+  padding: 12px;
+  border-bottom: 1px dashed var(--border-soft);
+  color: var(--text-1);
+  font-size: 13px;
+  vertical-align: middle;
+}
+.web-tbl tr:hover td { background: color-mix(in srgb, var(--bg-1) 50%, transparent); }
+
+/* ── Hero card ── */
+.web-hero-card {
+  position: relative;
+  background:
+    radial-gradient(circle at 80% 0%, var(--accent-glow-soft) 0%, transparent 50%),
+    var(--bg-2);
+  padding: 24px;
+  overflow: hidden;
+}
+.web-hero-card .shuttle-bg {
+  position: absolute; right: -20px; top: -20px;
+  opacity: 0.15;
+  animation: shuttle-fly 5s ease-in-out infinite alternate;
+}
+
+.web-card-foot {
+  display: flex; align-items: center; gap: 12px;
+  margin-top: 16px;
+}
+
+/* ── Scrollbar ── */
+.web-main::-webkit-scrollbar { width: 8px; }
+.web-main::-webkit-scrollbar-track { background: var(--bg-1); }
+.web-main::-webkit-scrollbar-thumb {
+  background: var(--bg-3);
+  box-shadow: inset 0 0 0 1px var(--border-mid);
+}
+.web-main::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* ── Utility row/col helpers ── */
+.web-row { display: flex; align-items: center; }
+.web-row-sb { display: flex; align-items: center; justify-content: space-between; }
+.web-col { display: flex; flex-direction: column; }
+
+/* ── Theme transition ── */
+.web-app, .web-app * {
+  transition-property: background-color, border-color, color, box-shadow;
+  transition-duration: 200ms;
+}
+input, textarea, select, [contenteditable] { transition: none !important; }

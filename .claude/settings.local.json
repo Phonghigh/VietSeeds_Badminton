@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(mkdir -p \"F:\\\\IT\\\\VietSeeds\\\\VietSeeds_Badminton\\\\.claude\")",
+      "Bash(python3 -c ' *)",
+      "PowerShell([System.IO.File]::ReadAllBytes\\(\"F:\\\\IT\\\\VietSeeds\\\\VietSeeds_Badminton\\\\README.md\"\\)[0..3] | ForEach-Object { \"0x{0:X2}\" -f $_ })"
+    ]
+  }
+}
