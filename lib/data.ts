@@ -68,27 +68,27 @@ export interface ActivityItem {
 }
 
 export const PLAYERS: Player[] = [
-  { id: 1,  name: "Minh Nguyễn",   nick: "Minh",   level: 18, xp: 1240, xpMax: 1500, streak: 12, wins: 47, attendance: 92, role: "admin", achievements: ["smash", "streak", "night"] },
-  { id: 2,  name: "Hà Trần",       nick: "Hà",     level: 15, xp: 880,  xpMax: 1200, streak: 8,  wins: 31, attendance: 84, role: "player" },
-  { id: 3,  name: "Long Phạm",     nick: "Long",   level: 22, xp: 1820, xpMax: 2000, streak: 23, wins: 71, attendance: 96, role: "player", achievements: ["mvp", "smash"] },
-  { id: 4,  name: "Linh Bùi",      nick: "Linh",   level: 11, xp: 420,  xpMax: 800,  streak: 4,  wins: 18, attendance: 71, role: "player" },
-  { id: 5,  name: "Tuấn Lê",       nick: "Tuấn",   level: 9,  xp: 310,  xpMax: 600,  streak: 2,  wins: 12, attendance: 65, role: "player" },
-  { id: 6,  name: "Mai Phan",      nick: "Mai",    level: 14, xp: 760,  xpMax: 1100, streak: 6,  wins: 24, attendance: 78, role: "player" },
-  { id: 7,  name: "Quang Đỗ",      nick: "Quang",  level: 17, xp: 1010, xpMax: 1400, streak: 9,  wins: 38, attendance: 88, role: "player" },
-  { id: 8,  name: "Phương Vũ",     nick: "Phương", level: 13, xp: 640,  xpMax: 1000, streak: 5,  wins: 22, attendance: 76, role: "player" },
-  { id: 9,  name: "Khánh Hoàng",   nick: "Khánh",  level: 20, xp: 1500, xpMax: 1700, streak: 15, wins: 58, attendance: 93, role: "player" },
-  { id: 10, name: "An Ngô",        nick: "An",     level: 10, xp: 380,  xpMax: 700,  streak: 3,  wins: 14, attendance: 68, role: "player" },
-  { id: 11, name: "Thảo Đặng",     nick: "Thảo",   level: 16, xp: 950,  xpMax: 1300, streak: 7,  wins: 28, attendance: 82, role: "player" },
-  { id: 12, name: "Duy Vương",     nick: "Duy",    level: 12, xp: 540,  xpMax: 900,  streak: 4,  wins: 20, attendance: 73, role: "player" },
+  { id: 1,  name: "Thanh Phong",       nick: "Phong - F12", level: 18, xp: 1240, xpMax: 1500, streak: 12, wins: 47, attendance: 92, role: "admin", achievements: ["smash", "streak", "night"] },
+  { id: 2,  name: "Thu Trang",         nick: "Trang - F6",  level: 15, xp: 880,  xpMax: 1200, streak: 8,  wins: 31, attendance: 84, role: "player" },
+  { id: 3,  name: "Phan Văn Đạt",      nick: "Đạt - F9",    level: 22, xp: 1820, xpMax: 2000, streak: 23, wins: 71, attendance: 96, role: "player", achievements: ["mvp", "smash"] },
+  { id: 4,  name: "Nguyễn Thế Hưng",   nick: "Hưng - F12",  level: 11, xp: 420,  xpMax: 800,  streak: 4,  wins: 18, attendance: 71, role: "player" },
+  { id: 5,  name: "Alex",              nick: "Alex - F6",   level: 9,  xp: 310,  xpMax: 600,  streak: 2,  wins: 12, attendance: 65, role: "player" },
+  { id: 6,  name: "Hồ Thị Kim Xuyến",  nick: "Xuyến - F13", level: 14, xp: 760,  xpMax: 1100, streak: 6,  wins: 24, attendance: 78, role: "player" },
+  { id: 7,  name: "Hữu Phát",          nick: "Phát - F12",  level: 17, xp: 1010, xpMax: 1400, streak: 9,  wins: 38, attendance: 88, role: "player" },
+  { id: 8,  name: "Đinh Cát Tường",    nick: "Tường - F13", level: 13, xp: 640,  xpMax: 1000, streak: 5,  wins: 22, attendance: 76, role: "player" },
+  { id: 9,  name: "Thanh Nhuệ",        nick: "Nhuệ - F12",  level: 20, xp: 1500, xpMax: 1700, streak: 15, wins: 58, attendance: 93, role: "player" },
+  { id: 10, name: "Hà Thanh Nhã",      nick: "Nhã - F13",   level: 10, xp: 380,  xpMax: 700,  streak: 3,  wins: 14, attendance: 68, role: "player" },
+  { id: 11, name: "Hồng Mỹ",           nick: "Mỹ - F9",     level: 16, xp: 950,  xpMax: 1300, streak: 7,  wins: 28, attendance: 82, role: "player" },
+  { id: 12, name: "Trúc Hồ",           nick: "Trúc - F10",  level: 12, xp: 540,  xpMax: 900,  streak: 4,  wins: 20, attendance: 73, role: "player" },
 ];
 
 export const ME = PLAYERS[0];
 
 export const COURTS: Court[] = [
-  { id: "a", name: "Lý Thường Kiệt Court",  short: "LTK", area: "Q.10", price: 120000 },
-  { id: "b", name: "Phú Thọ Sports Center", short: "PT",  area: "Q.11", price: 150000 },
-  { id: "c", name: "Nguyễn Tri Phương",     short: "NTP", area: "Q.5",  price: 100000 },
-  { id: "d", name: "Tao Đàn Park",          short: "TĐ",  area: "Q.1",  price: 180000 },
+  { id: "a", name: "Tada Bình Lợi",       short: "Tada BL",  area: "Bình Thạnh", price: 120000 },
+  { id: "b", name: "Tada Thanh Đa",       short: "Tada TĐ",  area: "Bình Thạnh", price: 150000 },
+  { id: "c", name: "Tada Ung Văn Khiêm",  short: "Tada UVK", area: "Bình Thạnh", price: 100000 },
+  { id: "d", name: "Tada",      short: "Tada",  area: "Bình Thạnh", price: 180000 },
 ];
 
 export const SESSIONS: Session[] = [
