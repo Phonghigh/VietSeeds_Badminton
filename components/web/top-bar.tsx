@@ -2,7 +2,7 @@
 import { useWebStore } from "@/stores/web-store";
 import { useThemeStore } from "@/stores/theme-store";
 import { PixelAvatar } from "@/components/ui/pixel-avatar";
-import { ShuttleIcon, BellIcon, ChatIcon } from "@/components/icons/pixel-icons";
+import { BellIcon, ChatIcon } from "@/components/icons/pixel-icons";
 import { ME } from "@/lib/data";
 
 export function WebTopBar() {
@@ -12,9 +12,6 @@ export function WebTopBar() {
   return (
     <header className="web-topbar">
       <div className="web-brand">
-        <div className="web-brand-mark">
-          <ShuttleIcon size={20} color="currentColor" />
-        </div>
         <div>
           <div className="web-brand-name">VIETSEEDS</div>
           <div className="web-brand-tag">SMASHERS · S3</div>
