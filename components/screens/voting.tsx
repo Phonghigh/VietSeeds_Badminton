@@ -3,7 +3,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { pageEnter, pageTransition } from "@/lib/motion";
-import { COURTS, findPlayer } from "@/lib/data";
+import { useCourts } from "@/lib/hooks/use-courts";
+import { usePlayers } from "@/lib/hooks/use-players";
 import { useGameStore } from "@/stores/game-store";
 import { PixelCard } from "@/components/ui/pixel-card";
 import { PixelButton } from "@/components/ui/pixel-button";
@@ -15,17 +16,10 @@ import {
   ArrowIcon, BoltIcon, CheckIcon, CrownIcon, ClockIcon,
 } from "@/components/icons/pixel-icons";
 
-const COURT_VOTES = [
-  { id: "a", label: COURTS[0].name, area: COURTS[0].area, price: COURTS[0].price, votes: 7,  voters: [1, 3, 7, 9, 11, 6, 2] },
-  { id: "b", label: COURTS[1].name, area: COURTS[1].area, price: COURTS[1].price, votes: 3,  voters: [5, 8, 12] },
-  { id: "c", label: COURTS[2].name, area: COURTS[2].area, price: COURTS[2].price, votes: 1,  voters: [4] },
-  { id: "d", label: COURTS[3].name, area: COURTS[3].area, price: COURTS[3].price, votes: 0,  voters: [] },
-];
-
 const TIME_VOTES = [
-  { id: "t1", label: "18:00 – 20:00", votes: 4, voters: [1, 3, 9, 11],       area: undefined, price: undefined },
-  { id: "t2", label: "19:30 – 21:30", votes: 6, voters: [2, 5, 6, 7, 8, 12], area: undefined, price: undefined },
-  { id: "t3", label: "20:00 – 22:00", votes: 2, voters: [4, 10],             area: undefined, price: undefined },
+  { id: "t1", label: "18:00 – 20:00", votes: 0, voters: [] as number[], area: undefined, price: undefined },
+  { id: "t2", label: "19:30 – 21:30", votes: 0, voters: [] as number[], area: undefined, price: undefined },
+  { id: "t3", label: "20:00 – 22:00", votes: 0, voters: [] as number[], area: undefined, price: undefined },
 ];
 
 type Style = "bars" | "cards" | "versus";
@@ -37,6 +31,13 @@ export function Voting() {
   const [style,  setStyle]  = useState<Style>("bars");
   const [topic,  setTopic]  = useState<Topic>("court");
   const [picks,  setPicks]  = useState<Record<string, string | null>>({});
+  const { data: courts = [] } = useCourts();
+  const { data: players = [] } = usePlayers();
+  const findPlayer = (id: number) => players.find(p => p.id === id);
+
+  const COURT_VOTES = courts.map(c => ({
+    id: c.id, label: c.name, area: c.area, price: c.price, votes: 0, voters: [] as number[],
+  }));
 
   const options = topic === "court" ? COURT_VOTES : TIME_VOTES;
   const total   = options.reduce((s, o) => s + o.votes, 0);

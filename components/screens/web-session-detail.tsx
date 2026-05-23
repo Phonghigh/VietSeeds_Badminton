@@ -11,18 +11,28 @@ import { Pills } from "@/components/ui/pills";
 import {
   CheckIcon, XIcon, ClockIcon, PinIcon, ShuttleIcon, HeartIcon, CrownIcon,
 } from "@/components/icons/pixel-icons";
-import { findPlayer } from "@/lib/data";
 import type { Session } from "@/lib/data";
+import { useSession } from "@/lib/hooks/use-sessions";
+import { usePlayers } from "@/lib/hooks/use-players";
 
 type Tab = "overview" | "roster" | "matches" | "costs" | "photos";
 
-export function WebSessionDetail({ session: s }: { session: Session }) {
+export function WebSessionDetail({ sessionId }: { sessionId: string }) {
   const router = useRouter();
   const [tab, setTab] = useState<Tab>("overview");
+  const { data: s, isLoading } = useSession(sessionId);
+  const { data: players = [] } = usePlayers();
+  const findPlayer = (id: number) => players.find(p => p.id === id);
 
-  const going   = s.going.map(findPlayer);
-  const maybe   = (s.maybe   ?? []).map(findPlayer);
-  const absent  = (s.notGoing ?? []).map(findPlayer);
+  if (isLoading || !s) return (
+    <div style={{ padding: 48, textAlign: "center" }}>
+      <span className="pixel-xs" style={{ color: "var(--text-3)" }}>Loading…</span>
+    </div>
+  );
+
+  const going   = s.going.map(findPlayer).filter(Boolean) as NonNullable<ReturnType<typeof findPlayer>>[];
+  const maybe   = (s.maybe   ?? []).map(findPlayer).filter(Boolean) as NonNullable<ReturnType<typeof findPlayer>>[];
+  const absent  = (s.notGoing ?? []).map(findPlayer).filter(Boolean) as NonNullable<ReturnType<typeof findPlayer>>[];
   const totalCost = s.cost ?? 480000;
   const perPlayer = Math.round(totalCost / Math.max(1, going.length));
   const pct = Math.round((going.length / s.capacity) * 100);

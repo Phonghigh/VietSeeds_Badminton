@@ -7,32 +7,36 @@ import { AvatarStack } from "@/components/ui/pixel-avatar";
 import { XPBar } from "@/components/ui/xp-bar";
 import { Pills } from "@/components/ui/pills";
 import { BoltIcon, CheckIcon, CrownIcon } from "@/components/icons/pixel-icons";
-import { COURTS, findPlayer } from "@/lib/data";
+import { useCourts } from "@/lib/hooks/use-courts";
+import { usePlayers } from "@/lib/hooks/use-players";
 
 type VoteStyle = "bars" | "cards" | "versus";
 type Picks = Record<string, string | null>;
 
-const COURT_VOTES = [
-  { id: "a", label: COURTS[0].name, area: COURTS[0].area, price: COURTS[0].price, votes: 7,  voters: [1, 3, 7, 9, 11, 6, 2] },
-  { id: "b", label: COURTS[1].name, area: COURTS[1].area, price: COURTS[1].price, votes: 3,  voters: [5, 8, 12] },
-  { id: "c", label: COURTS[2].name, area: COURTS[2].area, price: COURTS[2].price, votes: 1,  voters: [4] },
-  { id: "d", label: COURTS[3].name, area: COURTS[3].area, price: COURTS[3].price, votes: 0,  voters: [] },
-] as const;
 
 const TIME_VOTES = [
-  { id: "t1", label: "18:00 – 20:00", votes: 4, voters: [1, 3, 9, 11] },
-  { id: "t2", label: "19:30 – 21:30", votes: 6, voters: [2, 5, 6, 7, 8, 12] },
-  { id: "t3", label: "20:00 – 22:00", votes: 2, voters: [4, 10] },
-] as const;
-
-const POLLS = [
-  { topic: "court", title: "Where should we play Thursday night?", num: "25", options: COURT_VOTES as readonly {id:string;label:string;votes:number;voters:readonly number[];area?:string;price?:number}[] },
-  { topic: "time",  title: "What time works for everyone?",        num: "26", options: TIME_VOTES  as readonly {id:string;label:string;votes:number;voters:readonly number[];area?:string;price?:number}[] },
+  { id: "t1", label: "18:00 – 20:00", votes: 0, voters: [] as number[], area: undefined as string | undefined, price: undefined as number | undefined },
+  { id: "t2", label: "19:30 – 21:30", votes: 0, voters: [] as number[], area: undefined as string | undefined, price: undefined as number | undefined },
+  { id: "t3", label: "20:00 – 22:00", votes: 0, voters: [] as number[], area: undefined as string | undefined, price: undefined as number | undefined },
 ];
+
+type VoteOption = { id: string; label: string; votes: number; voters: number[]; area?: string; price?: number };
 
 export function WebVoting() {
   const [picks, setPicks] = useState<Picks>({});
   const [voteStyle, setVoteStyle] = useState<VoteStyle>("bars");
+  const { data: courts = [] } = useCourts();
+  const { data: players = [] } = usePlayers();
+  const findPlayer = (id: number) => players.find(p => p.id === id);
+
+  const COURT_VOTES: VoteOption[] = courts.map(c => ({
+    id: c.id, label: c.name, area: c.area, price: c.price, votes: 0, voters: [],
+  }));
+
+  const POLLS = [
+    { topic: "court", title: "Where should we play Thursday night?", num: "25", options: COURT_VOTES },
+    { topic: "time",  title: "What time works for everyone?",        num: "26", options: TIME_VOTES  },
+  ];
 
   const cast = (topic: string, id: string) => {
     setPicks(p => ({ ...p, [topic]: id }));

@@ -10,7 +10,8 @@ import {
   ShuttleIcon, RacketIcon, TrophyIcon, FireIcon, BoltIcon,
   CalendarIcon, ClockIcon, PinIcon, CheckIcon, CrownIcon, CoinIcon, PlusIcon,
 } from "@/components/icons/pixel-icons";
-import { ME, SESSIONS, findPlayer } from "@/lib/data";
+import { useMe, usePlayers } from "@/lib/hooks/use-players";
+import { useSessions } from "@/lib/hooks/use-sessions";
 
 // ── KPI Tile ──────────────────────────────────────────────────
 interface KPITileProps {
@@ -36,8 +37,15 @@ export function WebKPITile({ label, value, delta, deltaColor, icon, color = "var
 // ── WebHome ───────────────────────────────────────────────────
 export function WebHome() {
   const router = useRouter();
-  const upcoming = SESSIONS.find(s => s.status === "upcoming") ?? SESSIONS[0];
-  const going = upcoming.going.map(findPlayer);
+  const { data: me } = useMe();
+  const { data: sessions = [] } = useSessions();
+  const { data: players = [] } = usePlayers();
+  const findPlayer = (id: number) => players.find(p => p.id === id);
+  const upcoming = sessions.find(s => s.status === "upcoming") ?? sessions[0];
+
+  if (!me || !upcoming) return <div className="pixel-xs" style={{ padding: 32, textAlign: "center", color: "var(--text-3)" }}>Loading…</div>;
+
+  const going = upcoming.going.map(findPlayer).filter(Boolean) as NonNullable<ReturnType<typeof findPlayer>>[];
 
   return (
     <div>
@@ -46,11 +54,11 @@ export function WebHome() {
         <div>
           <div className="web-crumbs">▸ DASHBOARD / OVERVIEW</div>
           <h1>
-            WELCOME BACK, {ME.nick.toUpperCase()}&nbsp;
+            WELCOME BACK, {me.nick.toUpperCase()}&nbsp;
             <span className="animate-flicker">★</span>
           </h1>
           <div className="web-sub">
-            On a <b style={{ color: "var(--orange)" }}>{ME.streak} session streak 🔥</b> — keep it going.
+            On a <b style={{ color: "var(--orange)" }}>{me.streak} session streak 🔥</b> — keep it going.
           </div>
         </div>
         <div className="flex gap-2.5">
@@ -77,7 +85,7 @@ export function WebHome() {
         />
         <WebKPITile
           label="STREAK" color="var(--orange)"
-          value={<><AnimatedNumber value={ME.streak} /> 🔥</>}
+          value={<><AnimatedNumber value={me.streak} /> 🔥</>}
           delta="best: 18 sessions" deltaColor="var(--text-2)"
           icon={<FireIcon size={64} />}
         />
@@ -142,7 +150,7 @@ export function WebHome() {
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(12, 1fr)", gap: 4 }}>
                 {Array.from({ length: upcoming.capacity }).map((_, i) => {
-                  const player = upcoming.going[i] ? findPlayer(upcoming.going[i]) : null;
+                  const player = upcoming.going[i] != null ? findPlayer(upcoming.going[i]) : null;
                   return (
                     <div
                       key={i}
@@ -189,30 +197,30 @@ export function WebHome() {
           <div style={{ padding: 24 }}>
             <div className="flex gap-4 items-start">
               <button onClick={() => router.push("/dashboard/profile")} style={{ background: "none", border: "none" }}>
-                <PixelAvatar seed={ME.nick} size="lg" ring />
+                <PixelAvatar seed={me.nick} size="lg" ring />
               </button>
               <div style={{ flex: 1 }}>
                 <div className="pixel-xs" style={{ color: "var(--accent)" }}>SMASH MASTER</div>
-                <div className="pixel-md mt-1.5" style={{ color: "var(--text-0)" }}>{ME.name.toUpperCase()}</div>
+                <div className="pixel-md mt-1.5" style={{ color: "var(--text-0)" }}>{me.name.toUpperCase()}</div>
                 <div className="flex gap-1.5 mt-2">
-                  <PixelBadge variant="yellow"><CrownIcon size={10} /> LV.{ME.level}</PixelBadge>
-                  <PixelBadge variant="accent">{ME.wins}W</PixelBadge>
+                  <PixelBadge variant="yellow"><CrownIcon size={10} /> LV.{me.level}</PixelBadge>
+                  <PixelBadge variant="accent">{me.wins}W</PixelBadge>
                 </div>
               </div>
             </div>
 
             <div style={{ marginTop: 20 }}>
               <div className="web-row-sb" style={{ marginBottom: 6 }}>
-                <span className="pixel-xs" style={{ color: "var(--text-3)" }}>XP TO LV.{ME.level + 1}</span>
-                <span className="pixel-xs" style={{ color: "var(--accent)" }}>{ME.xp} / {ME.xpMax}</span>
+                <span className="pixel-xs" style={{ color: "var(--text-3)" }}>XP TO LV.{me.level + 1}</span>
+                <span className="pixel-xs" style={{ color: "var(--accent)" }}>{me.xp} / {me.xpMax}</span>
               </div>
-              <XPBar value={ME.xp} max={ME.xpMax} />
+              <XPBar value={me.xp} max={me.xpMax} />
             </div>
 
             {/* Three personal stats */}
             <div className="flex gap-3 mt-5">
               <div className="flex-1 text-center" style={{ padding: "12px 0", background: "var(--bg-2)" }}>
-                <div className="pixel-lg" style={{ color: "var(--orange)" }}>{ME.streak}</div>
+                <div className="pixel-lg" style={{ color: "var(--orange)" }}>{me.streak}</div>
                 <div className="pixel-xs mt-1" style={{ color: "var(--text-3)" }}>STREAK</div>
               </div>
               <div className="flex-1 text-center" style={{ padding: "12px 0", background: "var(--bg-2)" }}>
@@ -220,7 +228,7 @@ export function WebHome() {
                 <div className="pixel-xs mt-1" style={{ color: "var(--text-3)" }}>RANK</div>
               </div>
               <div className="flex-1 text-center" style={{ padding: "12px 0", background: "var(--bg-2)" }}>
-                <div className="pixel-lg" style={{ color: "var(--cyan)" }}>{ME.wins}</div>
+                <div className="pixel-lg" style={{ color: "var(--cyan)" }}>{me.wins}</div>
                 <div className="pixel-xs mt-1" style={{ color: "var(--text-3)" }}>WINS</div>
               </div>
             </div>

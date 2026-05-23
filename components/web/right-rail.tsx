@@ -5,13 +5,19 @@ import { PixelBadge } from "@/components/ui/pixel-badge";
 import { PixelButton } from "@/components/ui/pixel-button";
 import { PixelAvatar, AvatarStack } from "@/components/ui/pixel-avatar";
 import { XPBar } from "@/components/ui/xp-bar";
-import { SESSIONS, PLAYERS, ACTIVITY, findPlayer } from "@/lib/data";
 import type { Session } from "@/lib/data";
+import { useSessions } from "@/lib/hooks/use-sessions";
+import { usePlayers } from "@/lib/hooks/use-players";
+import { useActivity } from "@/lib/hooks/use-activity";
 
 export function WebRightRail() {
   const router = useRouter();
-  const live = SESSIONS.find(s => s.status === "live");
-  const upcoming = SESSIONS.find(s => s.status === "upcoming");
+  const { data: sessions = [] } = useSessions();
+  const { data: players = [] } = usePlayers();
+  const { data: activity = [] } = useActivity();
+  const findPlayer = (id: number) => players.find(p => p.id === id);
+  const live = sessions.find(s => s.status === "live");
+  const upcoming = sessions.find(s => s.status === "upcoming");
 
   const goToSession = (s: Session) => router.push(`/dashboard/sessions/${s.id}`);
 
@@ -30,7 +36,7 @@ export function WebRightRail() {
               {live.court.short} · {live.matchesPlayed ?? 0}/12 matches
             </div>
             <div style={{ display: "flex", alignItems: "center", marginTop: 10, gap: 8 }}>
-              <AvatarStack seeds={live.going.slice(0, 4).map(id => findPlayer(id).nick)} size="xs" />
+              <AvatarStack seeds={live.going.slice(0, 4).map(id => findPlayer(id)?.nick ?? "?")} size="xs" />
               <PixelButton variant="danger" size="sm" onClick={() => goToSession(live)} style={{ marginLeft: "auto" }}>
                 WATCH
               </PixelButton>
@@ -46,9 +52,10 @@ export function WebRightRail() {
           <span className="pixel-xs" style={{ color: "var(--text-3)" }}>LIVE</span>
         </div>
         <PixelCard variant="default" style={{ padding: 0, overflow: "hidden" }}>
-          {ACTIVITY.map((a, i) => {
+          {activity.map((a, i) => {
             const who = findPlayer(a.who);
             const target = a.target ? findPlayer(a.target) : null;
+            if (!who) return null;
             return (
               <div
                 key={a.id}
@@ -82,7 +89,7 @@ export function WebRightRail() {
           <span className="pixel-xs" style={{ color: "var(--text-3)" }}>WEEK</span>
         </div>
         <PixelCard variant="default" style={{ padding: 12 }}>
-          {[...PLAYERS].sort((a, b) => b.wins - a.wins).slice(0, 5).map((p, i) => (
+          {[...players].sort((a, b) => b.wins - a.wins).slice(0, 5).map((p, i) => (
             <div
               key={p.id}
               style={{
@@ -114,7 +121,7 @@ export function WebRightRail() {
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
             <span className="pixel-xs" style={{ color: "var(--cyan)" }}>📅 UPCOMING</span>
             <span className="pixel-xs" style={{ color: "var(--text-3)" }}>
-              {SESSIONS.filter(s => s.status === "upcoming").length}
+              {sessions.filter(s => s.status === "upcoming").length}
             </span>
           </div>
           <button

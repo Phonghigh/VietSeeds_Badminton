@@ -2,10 +2,14 @@
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { pageEnter, pageTransition } from "@/lib/motion";
-import { SESSIONS, ACTIVITY, QUESTS, PLAYERS, ACHIEVEMENTS, ME, findPlayer } from "@/lib/data";
-import type { Session } from "@/lib/data";
+import type { Session, Player, ActivityItem, Achievement, Quest } from "@/lib/data";
 import { useThemeStore } from "@/stores/theme-store";
 import { useGameStore } from "@/stores/game-store";
+import { useMe, usePlayers } from "@/lib/hooks/use-players";
+import { useSessions } from "@/lib/hooks/use-sessions";
+import { useActivity } from "@/lib/hooks/use-activity";
+import { useAchievements } from "@/lib/hooks/use-achievements";
+import { useQuests } from "@/lib/hooks/use-quests";
 import { PixelCard } from "@/components/ui/pixel-card";
 import { PixelButton } from "@/components/ui/pixel-button";
 import { PixelBadge } from "@/components/ui/pixel-badge";
@@ -37,14 +41,26 @@ const ACTIVITY_ICON_MAP: Record<string, React.ReactNode> = {
   photo: <HeartIcon  size={14} />,
 };
 
+interface HomeData {
+  me: Player;
+  sessions: Session[];
+  activity: ActivityItem[];
+  quests: Quest[];
+  players: Player[];
+  achievements: Achievement[];
+  findPlayer: (id: number) => Player | undefined;
+}
+
 // ── Layout A: Hero session + feed ─────────────────────────────────────────────
 
-function HomeLayoutA() {
+function HomeLayoutA({ me, sessions, activity, quests, players, achievements, findPlayer }: HomeData) {
   const router = useRouter();
   const { showToast } = useGameStore();
-  const upcoming = SESSIONS[0];
-  const live      = SESSIONS[1];
-  const going     = upcoming.going.map(findPlayer);
+  const upcoming = sessions.find(s => s.status === "upcoming") ?? sessions[0];
+  const live      = sessions.find(s => s.status === "live");
+
+  if (!upcoming) return null;
+  const going = upcoming.going.map(findPlayer).filter(Boolean) as Player[];
 
   return (
     <motion.div
@@ -60,11 +76,11 @@ function HomeLayoutA() {
         <div>
           <div className="pixel-xs" style={{ color: "var(--accent)" }}>▸ HELLO PLAYER</div>
           <div className="pixel-lg mt-1.5" style={{ color: "var(--text-0)" }}>
-            Hi, {ME.nick} <span className="animate-flicker">★</span>
+            Hi, {me.nick} <span className="animate-flicker">★</span>
           </div>
         </div>
         <button onClick={() => router.push("/profile")}>
-          <PixelAvatar seed={ME.nick} size="md" ring level={ME.level} />
+          <PixelAvatar seed={me.nick} size="md" ring level={me.level} />
         </button>
       </div>
 
@@ -87,7 +103,7 @@ function HomeLayoutA() {
               <span className="text-[11px] text-ink-3">{live.court.name}</span>
             </div>
             <div className="flex items-center gap-3 mt-3">
-              <AvatarStack seeds={live.going.slice(0, 5).map(id => findPlayer(id).nick)} size="sm" />
+              <AvatarStack seeds={live.going.slice(0, 5).map(id => findPlayer(id)?.nick ?? "?")} size="sm" />
               <PixelButton variant="danger" size="sm" icon={<ArrowIcon size={12} color="#fff" />}
                 onClick={() => router.push(`/sessions/${live.id}`)}>
                 JOIN LIVE
@@ -145,7 +161,7 @@ function HomeLayoutA() {
 
       {/* Personal stats — streak and rank only */}
       <div className="flex gap-2.5 items-stretch">
-        <StatTile icon={<FireIcon size={14} />} label="STREAK" value={`${ME.streak} 🔥`} color="var(--orange)" />
+        <StatTile icon={<FireIcon size={14} />} label="STREAK" value={`${me.streak} 🔥`} color="var(--orange)" />
         <StatTile icon={<TrophyIcon size={14} color="var(--yellow)" />} label="RANK" value="#4" color="var(--yellow)" />
       </div>
     </motion.div>
@@ -154,10 +170,12 @@ function HomeLayoutA() {
 
 // ── Layout B: Compact card grid ───────────────────────────────────────────────
 
-function HomeLayoutB() {
+function HomeLayoutB({ me, sessions, activity, quests, players, findPlayer }: HomeData) {
   const router  = useRouter();
   const { showToast } = useGameStore();
-  const upcoming = SESSIONS[0];
+  const upcoming = sessions.find(s => s.status === "upcoming") ?? sessions[0];
+
+  if (!upcoming) return null;
 
   return (
     <motion.div
@@ -172,10 +190,10 @@ function HomeLayoutB() {
       <div className="flex items-center justify-between" style={{ paddingTop: 4 }}>
         <div>
           <div className="pixel-lg" style={{ color: "var(--text-0)" }}>SMASHERS</div>
-          <div className="text-[11px] text-ink-3 mt-0.5">VietSeeds · 12 active</div>
+          <div className="text-[11px] text-ink-3 mt-0.5">VietSeeds · {players.length} active</div>
         </div>
         <button onClick={() => router.push("/profile")}>
-          <PixelAvatar seed={ME.nick} size="md" ring level={ME.level} />
+          <PixelAvatar seed={me.nick} size="md" ring level={me.level} />
         </button>
       </div>
 
@@ -217,7 +235,7 @@ function HomeLayoutB() {
               <FireIcon size={12} />
               <span className="pixel-xs" style={{ color: "var(--orange)" }}>STREAK</span>
             </div>
-            <div className="pixel-md mt-2" style={{ color: "var(--text-0)" }}>{ME.streak} 🔥</div>
+            <div className="pixel-md mt-2" style={{ color: "var(--text-0)" }}>{me.streak} 🔥</div>
             <div className="text-[11px] text-ink-3 mt-0.5">Best: 18</div>
             <div className="flex gap-0.5 mt-2">
               {Array.from({ length: 7 }).map((_, i) => (
@@ -240,10 +258,10 @@ function HomeLayoutB() {
               <BoltIcon size={12} color="var(--yellow)" />
               <span className="pixel-xs" style={{ color: "var(--yellow)" }}>XP</span>
             </div>
-            <div className="pixel-md mt-2" style={{ color: "var(--text-0)" }}>{ME.xp}</div>
-            <div className="text-[11px] text-ink-3 mt-0.5">LV.{ME.level} · {ME.xpMax - ME.xp} to next</div>
+            <div className="pixel-md mt-2" style={{ color: "var(--text-0)" }}>{me.xp}</div>
+            <div className="text-[11px] text-ink-3 mt-0.5">LV.{me.level} · {me.xpMax - me.xp} to next</div>
             <div className="mt-2">
-              <XPBar value={ME.xp} max={ME.xpMax} color="yellow" height={6} />
+              <XPBar value={me.xp} max={me.xpMax} color="yellow" height={6} />
             </div>
           </div>
         </PixelCard>
@@ -253,10 +271,10 @@ function HomeLayoutB() {
       <PixelCard variant="default" style={{ padding: 14 }}>
         <div className="flex justify-between items-center">
           <SectionTitle>Daily Quests</SectionTitle>
-          <PixelBadge variant="yellow">2/3</PixelBadge>
+          <PixelBadge variant="yellow">{quests.filter(q => q.done).length}/{quests.length}</PixelBadge>
         </div>
         <div className="flex flex-col gap-2 mt-1.5">
-          {QUESTS.map(q => (
+          {quests.map(q => (
             <div key={q.id} className="flex items-center gap-2.5">
               <div
                 className="flex-shrink-0 grid place-items-center"
@@ -275,8 +293,9 @@ function HomeLayoutB() {
       <div>
         <SectionTitle more="VIEW ALL">Live Feed</SectionTitle>
         <div className="h-scroll" style={{ marginLeft: -2, marginRight: -2, paddingLeft: 2, paddingRight: 2 }}>
-          {ACTIVITY.slice(0, 4).map(a => {
+          {activity.slice(0, 4).map(a => {
             const who = findPlayer(a.who);
+            if (!who) return null;
             return (
               <PixelCard key={a.id} variant="flat" style={{ minWidth: 200, flex: "0 0 auto" }}>
                 <div style={{ padding: 12 }}>
@@ -288,7 +307,7 @@ function HomeLayoutB() {
                     </div>
                   </div>
                   <div className="text-[12px] text-ink-1 mt-2" style={{ minHeight: 36 }}>
-                    {a.text}{a.target && <b style={{ color: "var(--accent)" }}> {findPlayer(a.target).nick}</b>}
+                    {a.text}{a.target && <b style={{ color: "var(--accent)" }}> {findPlayer(a.target)?.nick}</b>}
                   </div>
                   {a.xp && <PixelBadge variant="accent" icon={<BoltIcon size={10} />} className="mt-1">+{a.xp} XP</PixelBadge>}
                 </div>
@@ -302,7 +321,7 @@ function HomeLayoutB() {
       <div>
         <SectionTitle more="FULL">Top Smashers</SectionTitle>
         <PixelCard variant="default" style={{ padding: 12 }}>
-          {[PLAYERS[2], PLAYERS[8], PLAYERS[0]].map((p, i) => (
+          {[...players].sort((a, b) => b.wins - a.wins).slice(0, 3).map((p, i) => (
             <div
               key={p.id}
               className="flex items-center gap-2.5"
@@ -322,10 +341,12 @@ function HomeLayoutB() {
 
 // ── Layout C: Arcade game-screen ─────────────────────────────────────────────
 
-function HomeLayoutC() {
+function HomeLayoutC({ me, sessions, achievements, findPlayer }: HomeData) {
   const router   = useRouter();
   const { showToast } = useGameStore();
-  const upcoming = SESSIONS[0];
+  const upcoming = sessions.find(s => s.status === "upcoming") ?? sessions[0];
+
+  if (!upcoming) return null;
 
   return (
     <motion.div
@@ -353,13 +374,13 @@ function HomeLayoutC() {
         <div style={{ padding: 14 }}>
           <div className="flex items-start gap-3">
             <button onClick={() => router.push("/profile")}>
-              <PixelAvatar seed={ME.nick} size="lg" ring />
+              <PixelAvatar seed={me.nick} size="lg" ring />
             </button>
             <div className="flex-1">
               <div className="pixel-xs" style={{ color: "var(--accent)" }}>YOU</div>
-              <div className="pixel-md mt-1.5" style={{ color: "var(--text-0)" }}>{ME.name.toUpperCase()}</div>
+              <div className="pixel-md mt-1.5" style={{ color: "var(--text-0)" }}>{me.name.toUpperCase()}</div>
               <div className="flex items-center gap-2 mt-1.5">
-                <PixelBadge variant="yellow"><CrownIcon size={10} /> LV.{ME.level}</PixelBadge>
+                <PixelBadge variant="yellow"><CrownIcon size={10} /> LV.{me.level}</PixelBadge>
                 <PixelBadge variant="accent">SMASH MASTER</PixelBadge>
               </div>
             </div>
@@ -367,9 +388,9 @@ function HomeLayoutC() {
           <div className="mt-3.5">
             <div className="flex justify-between mb-1">
               <span className="pixel-xs text-ink-3">XP</span>
-              <span className="pixel-xs" style={{ color: "var(--accent)" }}>{ME.xp} / {ME.xpMax}</span>
+              <span className="pixel-xs" style={{ color: "var(--accent)" }}>{me.xp} / {me.xpMax}</span>
             </div>
-            <XPBar value={ME.xp} max={ME.xpMax} />
+            <XPBar value={me.xp} max={me.xpMax} />
           </div>
         </div>
       </PixelCard>
@@ -435,7 +456,7 @@ function HomeLayoutC() {
       <div>
         <SectionTitle more="ALL">Power-Ups</SectionTitle>
         <div className="h-scroll">
-          {ACHIEVEMENTS.map(a => {
+          {achievements.map(a => {
             const Icon = ACHIEVEMENT_ICON_MAP[a.icon];
             return (
               <div
@@ -463,32 +484,7 @@ function HomeLayoutC() {
         </div>
       </div>
 
-      {/* Activity ticker */}
-      <PixelCard variant="default" style={{ padding: 12 }}>
-        <div className="flex justify-between items-center mb-2.5">
-          <div className="flex items-center gap-1.5">
-            <span className="live-dot" />
-            <span className="pixel-xs" style={{ color: "var(--danger)" }}>LIVE TICKER</span>
-          </div>
-          <span className="pixel-xs text-ink-3">UPDATED 12s</span>
-        </div>
-        <div className="flex flex-col gap-2">
-          {ACTIVITY.slice(0, 4).map(a => {
-            const who    = findPlayer(a.who);
-            const target = a.target ? findPlayer(a.target) : null;
-            return (
-              <div key={a.id} className="flex items-start gap-2">
-                <span className="pixel-xs" style={{ color: "var(--accent)" }}>›</span>
-                <span className="text-[11px] text-ink-1">
-                  <b>{who.nick}</b> {a.text}
-                  {target && <b style={{ color: "var(--accent)" }}> {target.nick}</b>}
-                  {a.xp && <span style={{ color: "var(--accent)" }}> +{a.xp}XP</span>}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      </PixelCard>
+      {/* Activity ticker — not used in layout C but part of HomeData */}
     </motion.div>
   );
 }
@@ -497,7 +493,23 @@ function HomeLayoutC() {
 
 export function HomeScreen() {
   const { homeLayout } = useThemeStore();
-  if (homeLayout === "B") return <HomeLayoutB />;
-  if (homeLayout === "C") return <HomeLayoutC />;
-  return <HomeLayoutA />;
+  const { data: me } = useMe();
+  const { data: sessions = [] } = useSessions();
+  const { data: players = [] } = usePlayers();
+  const { data: activity = [] } = useActivity();
+  const { data: achievements = [] } = useAchievements();
+  const { data: quests = [] } = useQuests(me?.id ?? 0);
+
+  if (!me) return (
+    <div className="flex items-center justify-center" style={{ height: 300 }}>
+      <span className="pixel-xs animate-pulse" style={{ color: "var(--text-3)" }}>Loading…</span>
+    </div>
+  );
+
+  const findPlayer = (id: number) => players.find(p => p.id === id);
+  const props: HomeData = { me, sessions, activity, quests, players, achievements, findPlayer };
+
+  if (homeLayout === "B") return <HomeLayoutB {...props} />;
+  if (homeLayout === "C") return <HomeLayoutC {...props} />;
+  return <HomeLayoutA {...props} />;
 }

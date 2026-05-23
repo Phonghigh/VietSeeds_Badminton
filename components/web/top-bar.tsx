@@ -3,11 +3,12 @@ import { useWebStore } from "@/stores/web-store";
 import { useThemeStore } from "@/stores/theme-store";
 import { PixelAvatar } from "@/components/ui/pixel-avatar";
 import { BellIcon, ChatIcon } from "@/components/icons/pixel-icons";
-import { ME } from "@/lib/data";
+import { useMe } from "@/lib/hooks/use-players";
 
 export function WebTopBar() {
   const { theme, toggleTheme } = useWebStore();
   const { accent } = useThemeStore();
+  const { data: me } = useMe();
 
   return (
     <header className="web-topbar">
@@ -42,10 +43,10 @@ export function WebTopBar() {
           <ChatIcon size={16} />
         </button>
         <button className="web-user-pill">
-          <PixelAvatar seed={ME.nick} size="sm" ring />
+          <PixelAvatar seed={me?.nick ?? "?"} size="sm" ring />
           <div>
-            <div className="pp-label">{ME.nick.toUpperCase()}</div>
-            <div className="pp-sub">LV.{ME.level} · {ME.streak}🔥</div>
+            <div className="pp-label">{(me?.nick ?? "…").toUpperCase()}</div>
+            <div className="pp-sub">LV.{me?.level ?? "—"} · {me?.streak ?? 0}🔥</div>
           </div>
         </button>
       </div>

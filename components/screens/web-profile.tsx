@@ -10,7 +10,8 @@ import {
   TrophyIcon, CalendarIcon, RacketIcon, FireIcon, StarIcon, CrownIcon,
   MedalIcon, HeartIcon,
 } from "@/components/icons/pixel-icons";
-import { ME, ACHIEVEMENTS } from "@/lib/data";
+import { useMe } from "@/lib/hooks/use-players";
+import { useAchievements } from "@/lib/hooks/use-achievements";
 
 const ACHIEVEMENT_ICONS: Record<string, React.FC<{ size?: number; color?: string }>> = {
   racket: RacketIcon as React.FC<{ size?: number; color?: string }>,
@@ -27,7 +28,10 @@ const HEATMAP_OPACITY = Array.from({ length: 30 }, (_, i) => {
 });
 
 export function WebProfile() {
-  const p = ME;
+  const { data: me } = useMe();
+  const { data: achievements = [] } = useAchievements();
+  if (!me) return <div className="pixel-xs" style={{ padding: 32, textAlign: "center", color: "var(--text-3)" }}>Loading…</div>;
+  const p = me;
 
   return (
     <div>
@@ -133,10 +137,10 @@ export function WebProfile() {
       <PixelCard variant="default" style={{ padding: 18 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
           <SectionTitle>Trophy Cabinet</SectionTitle>
-          <PixelBadge variant="accent">{ACHIEVEMENTS.filter(a => a.earned).length}/{ACHIEVEMENTS.length}</PixelBadge>
+          <PixelBadge variant="accent">{achievements.filter(a => a.earned).length}/{achievements.length}</PixelBadge>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 12 }}>
-          {ACHIEVEMENTS.map(a => {
+          {achievements.map(a => {
             const Icon = ACHIEVEMENT_ICONS[a.icon];
             return (
               <div

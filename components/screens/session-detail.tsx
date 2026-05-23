@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { pageEnter, pageTransition } from "@/lib/motion";
 import type { Session } from "@/lib/data";
-import { findPlayer } from "@/lib/data";
+import { useSession } from "@/lib/hooks/use-sessions";
+import { usePlayers } from "@/lib/hooks/use-players";
 import { useGameStore } from "@/stores/game-store";
 import { PixelCard } from "@/components/ui/pixel-card";
 import { PixelButton } from "@/components/ui/pixel-button";
@@ -22,17 +23,26 @@ import {
 type Tab = "roster" | "matches" | "costs" | "photos";
 
 interface SessionDetailProps {
-  session: Session;
+  sessionId: string;
 }
 
-export function SessionDetail({ session: s }: SessionDetailProps) {
+export function SessionDetail({ sessionId }: SessionDetailProps) {
   const router = useRouter();
   const { showToast } = useGameStore();
   const [tab, setTab] = useState<Tab>("roster");
+  const { data: s, isLoading } = useSession(sessionId);
+  const { data: players = [] } = usePlayers();
+  const findPlayer = (id: number) => players.find(p => p.id === id);
 
-  const going  = s.going.map(findPlayer);
-  const maybe  = (s.maybe  ?? []).map(findPlayer);
-  const absent = (s.notGoing ?? []).map(findPlayer);
+  if (isLoading || !s) return (
+    <div className="flex items-center justify-center" style={{ height: 300 }}>
+      <span className="pixel-xs" style={{ color: "var(--text-3)" }}>Loading…</span>
+    </div>
+  );
+
+  const going  = s.going.map(findPlayer).filter(Boolean) as NonNullable<ReturnType<typeof findPlayer>>[];
+  const maybe  = (s.maybe  ?? []).map(findPlayer).filter(Boolean) as NonNullable<ReturnType<typeof findPlayer>>[];
+  const absent = (s.notGoing ?? []).map(findPlayer).filter(Boolean) as NonNullable<ReturnType<typeof findPlayer>>[];
 
   const totalCost = s.cost ?? 480000;
   const perPlayer = Math.round(totalCost / Math.max(1, going.length));

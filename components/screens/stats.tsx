@@ -3,7 +3,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { pageEnter, pageTransition } from "@/lib/motion";
-import { PLAYERS, SESSIONS, findPlayer } from "@/lib/data";
+import { usePlayers } from "@/lib/hooks/use-players";
+import { useSessions } from "@/lib/hooks/use-sessions";
 import { PixelCard } from "@/components/ui/pixel-card";
 import { PixelButton } from "@/components/ui/pixel-button";
 import { PixelBadge } from "@/components/ui/pixel-badge";
@@ -36,6 +37,7 @@ const SPENDING = [
 export function Stats() {
   const [range, setRange] = useState<Range>("month");
   const totalSpent = SPENDING.reduce((s, x) => s + x.value, 0);
+  const { data: players = [] } = usePlayers();
 
   return (
     <motion.div
@@ -157,7 +159,7 @@ export function Stats() {
       {/* Leaderboard */}
       <PixelCard variant="default" style={{ padding: 14 }}>
         <SectionTitle more="VIEW ALL">Top Players</SectionTitle>
-        {[...PLAYERS].sort((a, b) => b.wins - a.wins).slice(0, 5).map((p, i) => (
+        {[...players].sort((a, b) => b.wins - a.wins).slice(0, 5).map((p, i) => (
           <div
             key={p.id}
             className="flex items-center gap-2.5"
@@ -190,6 +192,9 @@ export function Stats() {
 
 export function SessionsList() {
   const router = useRouter();
+  const { data: sessions = [] } = useSessions();
+  const { data: players = [] } = usePlayers();
+  const findPlayer = (id: number) => players.find(p => p.id === id);
 
   return (
     <motion.div
@@ -209,7 +214,7 @@ export function SessionsList() {
       </div>
 
       <div className="flex flex-col gap-3">
-        {SESSIONS.map(s => (
+        {sessions.map(s => (
           <PixelCard
             key={s.id}
             variant="elev"
@@ -234,7 +239,7 @@ export function SessionsList() {
               <div className="flex justify-between items-center mt-3">
                 <div className="flex items-center gap-2">
                   {s.going.slice(0, 4).map(id => (
-                    <PixelAvatar key={id} seed={findPlayer(id).nick} size="xs" />
+                    <PixelAvatar key={id} seed={findPlayer(id)?.nick ?? "?"} size="xs" />
                   ))}
                   {s.going.length > 4 && (
                     <span className="pixel-xs text-ink-3">+{s.going.length - 4}</span>

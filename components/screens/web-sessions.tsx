@@ -8,16 +8,19 @@ import { AvatarStack } from "@/components/ui/pixel-avatar";
 import { XPBar } from "@/components/ui/xp-bar";
 import { Pills } from "@/components/ui/pills";
 import { ShuttleIcon, PlusIcon, ArrowIcon } from "@/components/icons/pixel-icons";
-import { SESSIONS, findPlayer } from "@/lib/data";
-import type { Session } from "@/lib/data";
+import type { Session, Player } from "@/lib/data";
+import { useSessions } from "@/lib/hooks/use-sessions";
+import { usePlayers } from "@/lib/hooks/use-players";
 
 export function WebSessions() {
   const router = useRouter();
   const [filter, setFilter] = useState<"all" | "upcoming" | "live" | "past">("all");
+  const { data: sessions = [] } = useSessions();
+  const { data: players = [] } = usePlayers();
 
   const filtered = filter === "all"
-    ? SESSIONS
-    : SESSIONS.filter(s => s.status === filter);
+    ? sessions
+    : sessions.filter(s => s.status === filter);
 
   return (
     <div>
@@ -46,14 +49,15 @@ export function WebSessions() {
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))", gap: 16 }}>
         {filtered.map(s => (
-          <SessionCard key={s.id} session={s} onClick={() => router.push(`/dashboard/sessions/${s.id}`)} />
+          <SessionCard key={s.id} session={s} players={players} onClick={() => router.push(`/dashboard/sessions/${s.id}`)} />
         ))}
       </div>
     </div>
   );
 }
 
-function SessionCard({ session: s, onClick }: { session: Session; onClick: () => void }) {
+function SessionCard({ session: s, players, onClick }: { session: Session; players: Player[]; onClick: () => void }) {
+  const findPlayer = (id: number) => players.find(p => p.id === id);
   return (
     <PixelCard
       variant="elev"
@@ -95,7 +99,7 @@ function SessionCard({ session: s, onClick }: { session: Session; onClick: () =>
           <span style={{ fontSize: 11, color: "var(--text-3)" }}>📍 {s.court.short}</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 14 }}>
-          <AvatarStack seeds={s.going.map(id => findPlayer(id).nick)} max={5} size="xs" />
+          <AvatarStack seeds={s.going.map(id => findPlayer(id)?.nick ?? "?")} max={5} size="xs" />
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             <PixelBadge variant={s.going.length >= (s.capacity ?? 12) ? "danger" : "accent"}>
               {s.going.length}/{s.capacity ?? 12}

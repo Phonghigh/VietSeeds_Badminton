@@ -3,7 +3,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { pageEnter, pageTransition } from "@/lib/motion";
-import { ME, PLAYERS, SESSIONS, ACHIEVEMENTS, findPlayer } from "@/lib/data";
+import { useMe, usePlayer } from "@/lib/hooks/use-players";
+import { useSessions } from "@/lib/hooks/use-sessions";
+import { useAchievements } from "@/lib/hooks/use-achievements";
 import { PixelCard } from "@/components/ui/pixel-card";
 import { PixelButton } from "@/components/ui/pixel-button";
 import { PixelBadge } from "@/components/ui/pixel-badge";
@@ -35,8 +37,18 @@ interface ProfileProps {
 
 export function Profile({ playerId }: ProfileProps) {
   const router = useRouter();
-  const p      = playerId ? findPlayer(playerId) : ME;
+  const { data: me } = useMe();
+  const { data: specificPlayer } = usePlayer(playerId ?? 0);
+  const { data: sessions = [] } = useSessions();
+  const { data: achievements = [] } = useAchievements(playerId);
   const [tab, setTab] = useState<Tab>("stats");
+
+  const p = playerId ? specificPlayer : me;
+  if (!p) return (
+    <div className="flex items-center justify-center" style={{ height: 300 }}>
+      <span className="pixel-xs animate-pulse" style={{ color: "var(--text-3)" }}>Loading…</span>
+    </div>
+  );
 
   return (
     <motion.div
@@ -192,10 +204,10 @@ export function Profile({ playerId }: ProfileProps) {
           <PixelCard variant="default" style={{ padding: 14 }}>
             <div className="flex justify-between items-center">
               <SectionTitle>Achievement Trophies</SectionTitle>
-              <PixelBadge variant="accent">{ACHIEVEMENTS.filter(a => a.earned).length} / {ACHIEVEMENTS.length}</PixelBadge>
+              <PixelBadge variant="accent">{achievements.filter(a => a.earned).length} / {achievements.length}</PixelBadge>
             </div>
             <div className="grid grid-cols-2 gap-2.5 mt-2.5">
-              {ACHIEVEMENTS.map(a => {
+              {achievements.map(a => {
                 const Icon = ACHIEVEMENT_ICON_MAP[a.icon];
                 return (
                   <div
@@ -228,7 +240,7 @@ export function Profile({ playerId }: ProfileProps) {
 
         {tab === "history" && (
           <div className="flex flex-col gap-2.5">
-            {SESSIONS.map(s => (
+            {sessions.map(s => (
               <PixelCard key={s.id} variant="default" style={{ padding: 14 }}>
                 <div className="flex justify-between items-center mb-1.5">
                   <span className="pixel-xs" style={{ color: "var(--accent)" }}>{s.date.toUpperCase()}</span>

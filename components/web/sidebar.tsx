@@ -6,7 +6,7 @@ import { PixelButton } from "@/components/ui/pixel-button";
 import {
   HomeIcon, CalendarIcon, VoteIcon, StatsIcon, ProfileIcon, BoltIcon,
 } from "@/components/icons/pixel-icons";
-import { PLAYERS } from "@/lib/data";
+import { usePlayers } from "@/lib/hooks/use-players";
 
 const NAV_ITEMS = [
   { id: "home",     href: "/dashboard",         label: "Home",    Icon: HomeIcon },
@@ -24,6 +24,7 @@ const ADMIN_ITEMS = [
 
 export function WebSidebar() {
   const pathname = usePathname();
+  const { data: players = [] } = usePlayers();
 
   const isActive = (href: string) =>
     href === "/dashboard"
@@ -62,7 +63,7 @@ export function WebSidebar() {
         <div className="pixel-md" style={{ color: "var(--text-0)", marginTop: 8 }}>VIETSEEDS</div>
         <div style={{ fontSize: 12, color: "var(--text-3)", marginTop: 6 }}>12 members · Saigon</div>
         <div style={{ marginTop: 12 }}>
-          <AvatarStack seeds={PLAYERS.slice(0, 5).map(p => p.nick)} max={4} size="xs" />
+          <AvatarStack seeds={players.slice(0, 5).map(p => p.nick)} max={4} size="xs" />
         </div>
         <PixelButton variant="ghost" size="sm" style={{ width: "100%", marginTop: 12 }}>
           MANAGE CLUB

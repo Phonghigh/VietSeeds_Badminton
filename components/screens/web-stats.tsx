@@ -11,7 +11,7 @@ import { WebKPITile } from "@/components/screens/web-home";
 import {
   TrophyIcon, CalendarIcon, RacketIcon, ShuttleIcon, CoinIcon, CrownIcon,
 } from "@/components/icons/pixel-icons";
-import { PLAYERS } from "@/lib/data";
+import { usePlayers } from "@/lib/hooks/use-players";
 
 const WEEKS = [
   { label: "W1", value: 65, sessions: 3 },
@@ -34,6 +34,7 @@ const SPENDING = [
 export function WebStats() {
   const [range] = useState("month");
   const total = SPENDING.reduce((s, x) => s + x.value, 0);
+  const { data: players = [] } = usePlayers();
 
   return (
     <div>
@@ -150,7 +151,7 @@ export function WebStats() {
             </tr>
           </thead>
           <tbody>
-            {[...PLAYERS].sort((a, b) => b.wins - a.wins).map((p, i) => (
+            {[...players].sort((a, b) => b.wins - a.wins).map((p, i) => (
               <tr key={p.id}>
                 <td>
                   <span className="pixel-md" style={{

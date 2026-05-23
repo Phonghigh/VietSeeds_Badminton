@@ -11,12 +11,13 @@ import { WebKPITile } from "@/components/screens/web-home";
 import {
   PlusIcon, CrownIcon, TrophyIcon, CalendarIcon, ShuttleIcon, CheckIcon, CoinIcon,
 } from "@/components/icons/pixel-icons";
-import { PLAYERS } from "@/lib/data";
+import { usePlayers } from "@/lib/hooks/use-players";
 
 // ── Admin Users ───────────────────────────────────────────────
 export function WebAdminUsers() {
   const [search, setSearch] = useState("");
-  const filtered = PLAYERS.filter(
+  const { data: players = [] } = usePlayers();
+  const filtered = players.filter(
     p => p.name.toLowerCase().includes(search.toLowerCase()) || p.nick.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -26,7 +27,7 @@ export function WebAdminUsers() {
         <div>
           <div className="web-crumbs">▸ ADMIN / MEMBERS</div>
           <h1>MEMBER MANAGEMENT</h1>
-          <div className="web-sub">{PLAYERS.length} active members · 2 captains · 1 invitation pending</div>
+          <div className="web-sub">{players.length} active members · 2 captains · 1 invitation pending</div>
         </div>
         <div style={{ display: "flex", gap: 10 }}>
           <PixelButton variant="ghost" size="sm">⤓ EXPORT</PixelButton>
@@ -37,10 +38,10 @@ export function WebAdminUsers() {
       </div>
 
       <div className="web-kpi-row" style={{ gridTemplateColumns: "repeat(4, 1fr)" }}>
-        <WebKPITile label="TOTAL MEMBERS" value={PLAYERS.length}                                           color="var(--accent)"  delta="+2 this month" />
-        <WebKPITile label="ACTIVE"        value={PLAYERS.filter(p => p.attendance >= 70).length}           color="var(--accent-2)" delta="≥ 70% attendance" />
-        <WebKPITile label="AT-RISK"       value={PLAYERS.filter(p => p.attendance < 70).length}            color="var(--danger)"  delta="< 70% attendance" />
-        <WebKPITile label="AVG LEVEL"     value={Math.round(PLAYERS.reduce((s, p) => s + p.level, 0) / PLAYERS.length)} color="var(--yellow)" delta={`spread ${Math.min(...PLAYERS.map(p => p.level))}-${Math.max(...PLAYERS.map(p => p.level))}`} />
+        <WebKPITile label="TOTAL MEMBERS" value={players.length}                                           color="var(--accent)"  delta="+2 this month" />
+        <WebKPITile label="ACTIVE"        value={players.filter(p => p.attendance >= 70).length}           color="var(--accent-2)" delta="≥ 70% attendance" />
+        <WebKPITile label="AT-RISK"       value={players.filter(p => p.attendance < 70).length}            color="var(--danger)"  delta="< 70% attendance" />
+        <WebKPITile label="AVG LEVEL"     value={players.length ? Math.round(players.reduce((s, p) => s + p.level, 0) / players.length) : 0} color="var(--yellow)" delta={players.length ? `spread ${Math.min(...players.map(p => p.level))}-${Math.max(...players.map(p => p.level))}` : "—"} />
       </div>
 
       <PixelCard variant="default" style={{ padding: 0, overflow: "hidden", marginTop: 16 }}>
